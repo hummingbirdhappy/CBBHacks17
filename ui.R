@@ -1,0 +1,3 @@
+require(shiny)
+shinyUI(fluidPage()
+)
