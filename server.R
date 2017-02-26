@@ -38,27 +38,56 @@ shinyServer(function(input,output) {
       renderText("Give!")
   
       
-  msr <- function(ticker1,start_year) {
-    
-    symbol <- getSymbols(ticker1, src = 'yahoo', auto.assign = FALSE, warnings = FALSE)
-    
-    # Tranform it to monthly returns using the periodReturn function from quantmod
-    prdata <- periodReturn(symbol, period = 'monthly', subset=paste(start_year, "::", sep = ""), 
-                           type = 'log')
-    
-    # Let's rename the column of returns to something intuitive because the column name is what
-    # will eventually be displayed on the time series graph.
-    colnames(prdata) <- as.character(ticker1)
-    # We want to be able to work with the xts objects that result from this function 
-    # so let's explicitly put them to the global environment with an easy to use 
-    # name, the stock ticker.
-    assign(ticker1, prdata, .GlobalEnv)
-    
-    dygraph(prdata, main = ticker1) %>%
-    dyAxis("y", label = "%") %>%
-    dyOptions(colors = RColorBrewer::brewer.pal(3, "Set2"))
-  }
-  
+    msr <- function(ticker1,ticker2,ticker3,start_year) {
+        
+        symbol1 <- getSymbols(ticker1, src = 'yahoo', auto.assign = FALSE, warnings = FALSE)
+        
+        # Tranform it to monthly returns using the periodReturn function from quantmod
+        prdata1 <- periodReturn(symbol1, period = 'monthly', subset=paste(start_year, "::", sep = ""), 
+                                type = 'log')
+        
+        # Let's rename the column of returns to something intuitive because the column name is what
+        # will eventually be displayed on the time series graph.
+        colnames(prdata1) <- as.character(ticker1)
+        # We want to be able to work with the xts objects that result from this function 
+        # so let's explicitly put them to the global environment with an easy to use 
+        # name, the stock ticker.
+        assign(ticker1, prdata1, .GlobalEnv)
+        
+        symbol2 <- getSymbols(ticker2, src = 'yahoo', auto.assign = FALSE, warnings = FALSE) 
+        # Tranform it to monthly returns using the periodReturn function from quantmod
+        data2 <- periodReturn(symbol2, period = 'monthly', subset=paste(start_year, "::", sep = ""), 
+                              type = 'log')
+        
+        # Let's rename the column of returns to something intuitive because the column name is what
+        # will eventually be displayed on the time series graph.
+        colnames(data2) <- as.character(ticker2)
+        # We want to be able to work with the xts objects that result from this function 
+        # so let's explicitly put them to the global environment with an easy to use 
+        # name, the stock ticker.
+        assign(ticker2, data2, .GlobalEnv)
+        
+        symbol3 <- getSymbols(ticker3, src = 'yahoo', auto.assign = FALSE, warnings = FALSE) 
+        # Tranform it to monthly returns using the periodReturn function from quantmod
+        data3 <- periodReturn(symbol3, period = 'monthly', subset=paste(start_year, "::", sep = ""), 
+                              type = 'log')
+        
+        # Let's rename the column of returns to something intuitive because the column name is what
+        # will eventually be displayed on the time series graph. 
+        colnames(data3) <- as.character(ticker3)
+        # We want to be able to work with the xts objects that result from this function 
+        # so let's explicitly put them to the global environment with an easy to use 
+        # name, the stock ticker.
+        assign(ticker3, data3, .GlobalEnv)
+        
+        # Merge the 3 monthly return xts objects into 1 xts object.
+        merged_returns <- merge.xts(prdata1,data2,data3)
+        
+        dygraph(merged_returns, main = c(ticker1,ticker2,ticker3)) %>%
+          dyAxis("y", label = "%") %>%
+          dyOptions(colors = RColorBrewer::brewer.pal(3, "Set2"))
+      }
+      
   pv<-function(ticker1,ticker2) {
     symbol1 <- getSymbols(ticker1,src='yahoo',auto.assign = FALSE, warnings=FALSE)
     symbol2<- getSymbols(ticker2,src='yahoo',auto.assign = FALSE, warnings=FALSE)
